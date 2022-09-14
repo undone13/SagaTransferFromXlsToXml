@@ -58,6 +58,7 @@ namespace SagaTransferFromXlsToXml
             else
             {
                 //delete file
+                File.Delete(fileName + ".xml");
             }
 
 
