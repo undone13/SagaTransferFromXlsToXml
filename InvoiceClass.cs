@@ -14,6 +14,8 @@ namespace SagaTransferFromXlsToXml
             public string FurnizorCIF;
             public string FurnizorNrRegCom;
             public string FurnizorCapital;
+            public string FurnizorTara;
+            public string FurnizorJudet;
             public string FurnizorAdresa;
             public string FurnizorBanca;
             public string FurnizorIBAN;
@@ -22,21 +24,30 @@ namespace SagaTransferFromXlsToXml
             public string ClientInformatiiSuplimentare;
             public string ClientCIF;
             public string ClientNrRegCom;
+            public string ClientTara;
             public string ClientJudet;
             public string ClientAdresa;
             public string ClientBanca;
             public string ClientIBAN;
+            public string ClientTelefon;
+            public string ClientMail;
             public string FacturaNumar;
             public string FacturaData;
             public string FacturaScadenta;
             public string FacturaTaxareInversa;
             public string FacturaTVAIncasare;
+            public string FacturaTip;
             public string FacturaInformatiiSuplimentare;
             public string FacturaMoneda;
+            public string FacturaCotaTVA;
+            public string FacturaID;
+            public string FacturaGreutate;
         }
         public class Linie
         {
             public string LinieNrCrt;
+            public string Gestiune;
+            public string Activitate;
             public string Descriere;
             public string CodArticolFurnizor;
             public string CodArticolClient;
@@ -46,6 +57,7 @@ namespace SagaTransferFromXlsToXml
             public string Cantitate;
             public string Pret;
             public string Valoare;
+            public string CotaTVA;
             public string ProcTVA;
             public string TVA;
             public string Cont;

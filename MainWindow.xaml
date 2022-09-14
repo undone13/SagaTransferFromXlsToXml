@@ -10,5 +10,6 @@
     <Grid>
         <Button x:Name="buttonChooseFile" Content="Alege Fisier" Height="50" Width="200" VerticalAlignment="Center" Click="buttonChooseFile_Click"/>
         <Image x:Name="imageLoading" gif:ImageBehavior.AnimatedSource="/Loading_icon.gif" Visibility="Collapsed"/>
+        
     </Grid>
 </Window>
