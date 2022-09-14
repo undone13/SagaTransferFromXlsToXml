@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ExcelDataReader;
 using System.Xml;
+using System.Threading;
 
 namespace SagaTransferFromXlsToXml
 {
@@ -27,6 +28,7 @@ namespace SagaTransferFromXlsToXml
     public partial class MainWindow : Window
     {
         public string fileName = "documentXML";
+        public string filePath = "";
 
         public MainWindow()
         {
@@ -35,7 +37,6 @@ namespace SagaTransferFromXlsToXml
 
         private void buttonChooseFile_Click(object sender, RoutedEventArgs e)
         {
-            string filePath = "";
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             openFileDialog1.Filter = "Files|*.xls;*.xlsx";
             openFileDialog1.Title = "Select a File";
@@ -61,7 +62,13 @@ namespace SagaTransferFromXlsToXml
                 File.Delete(fileName + ".xml");
             }
 
+            Thread thread = new Thread(ReadAndWrite);
+            thread.Start();
+            
+        }
 
+        private void ReadAndWrite()
+        {
             try
             {
                 using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -98,15 +105,19 @@ namespace SagaTransferFromXlsToXml
                         } while (reader.NextResult());
 
                     }
-                    MessageBox.Show("Fisierul s-a creat cu succes!");
-                    
                 }
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show("Fisierul s-a creat cu succes!");
+                    System.Diagnostics.Process.Start(fileName + ".xml");
+                }));
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
         }
 
         private void CreateXML(string xmlFileName) 
