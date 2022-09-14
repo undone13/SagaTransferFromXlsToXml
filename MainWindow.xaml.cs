@@ -44,6 +44,11 @@ namespace SagaTransferFromXlsToXml
             {
                 filePath = openFileDialog1.FileName;
             }
+            else
+            {
+                MessageBox.Show("Nu s-a putut importa fisierul");
+                return;
+            }
             openFileDialog1 = null;
 
             if(File.Exists(fileName) == false)
@@ -55,31 +60,52 @@ namespace SagaTransferFromXlsToXml
                 //delete file
             }
 
-            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+
+            try
             {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    do
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
-                        while (reader.Read())
+                        reader.Read();
+                        do
                         {
-                            InvoiceClass.Antet antet = new InvoiceClass.Antet();
-                            antet.ClientNume = reader.GetString(0);
-                            antet.ClientCIF = reader.GetString(1);
-                            antet.FacturaNumar = reader.GetString(2).Split(' ').Skip(1).FirstOrDefault(); //fact 1234 -> 1234
-                            antet.FurnizorNume = reader.GetString(3);
-                            antet.FurnizorCIF = reader.GetString(4);
+                            while (reader.Read())
+                            {
+                                InvoiceClass.Antet antet = new InvoiceClass.Antet();
+                                antet.ClientNume = reader.GetString(0);
+                                antet.ClientCIF = reader.GetString(1);
+                                antet.FacturaNumar = reader.GetString(2);  //reader.GetString(2).Split(' ').Skip(1).FirstOrDefault(); //fact 1234 -> 1234
+                                antet.FurnizorNume = reader.GetString(3);
+                                antet.FurnizorCIF = reader.GetString(4);
+                                antet.FacturaData = reader.GetString(5);
+                                antet.FacturaMoneda = reader.GetString(9);
 
-                            CreateInvoiceAntet(fileName, antet);
-                        }
-                    } while (reader.NextResult());
+                                InvoiceClass.Linie line = new InvoiceClass.Linie();
+                                line.LinieNrCrt = "1";
+                                line.Descriere = "Marfa";
+                                line.Cantitate = "1";
+                                line.Pret = reader.GetDouble(8).ToString();
+                                line.Valoare = line.Pret;
+                                double TVAproc = reader.GetDouble(7) / reader.GetDouble(6) * 100f;
+                                line.ProcTVA = Convert.ToInt32(TVAproc).ToString();
+                                line.TVA = reader.GetDouble(7).ToString();
+                                line.Cont = "371";
 
+                                CreateInvoice(fileName, antet, line);
+                            }
+                        } while (reader.NextResult());
 
-                    //var result = reader.AsDataSet();
-                    //var x = result.Tables[0];
-                    ////MessageBox.Show(result.Tables[0].Rows.Count.ToString());
+                    }
+                    MessageBox.Show("Fisierul s-a creat cu succes!");
+                    
                 }
             }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
         }
 
         private void CreateXML(string xmlFileName) 
@@ -92,7 +118,7 @@ namespace SagaTransferFromXlsToXml
             doc.Save(xmlFileName + ".xml");
         }
 
-        private void CreateInvoiceAntet(string xmlFileName, InvoiceClass.Antet antet)
+        private void CreateInvoice(string xmlFileName, InvoiceClass.Antet antet, InvoiceClass.Linie line)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(xmlFileName + ".xml");
@@ -101,6 +127,10 @@ namespace SagaTransferFromXlsToXml
 
             XmlNode factura = doc.CreateElement("Factura");
             facturi.AppendChild(factura);
+
+            #region Antet
+            XmlNode antetNode = doc.CreateElement("Antet");
+            factura.AppendChild(antetNode);
 
             XmlNode FurnizorNume = doc.CreateElement("FurnizorNume");
             FurnizorNume.InnerText = antet.FurnizorNume;
@@ -154,33 +184,89 @@ namespace SagaTransferFromXlsToXml
             FacturaMoneda.InnerText = antet.FacturaMoneda;
 
 
-            factura.AppendChild(FurnizorNume);
-            factura.AppendChild(FurnizorCIF);
-            factura.AppendChild(FurnizorNrRegCom);
-            factura.AppendChild(FurnizorCapital);
-            factura.AppendChild(FurnizorAdresa);
+            antetNode.AppendChild(FurnizorNume);
+            antetNode.AppendChild(FurnizorCIF);
+            antetNode.AppendChild(FurnizorNrRegCom);
+            antetNode.AppendChild(FurnizorCapital);
+            antetNode.AppendChild(FurnizorAdresa);
 
-            factura.AppendChild(FurnizorBanca);
-            factura.AppendChild(FurnizorIBAN);
-            factura.AppendChild(FurnizorInformatiiSuplimentare);
-            factura.AppendChild(ClientNume);
-            factura.AppendChild(ClientInformatiiSuplimentare);
+            antetNode.AppendChild(FurnizorBanca);
+            antetNode.AppendChild(FurnizorIBAN);
+            antetNode.AppendChild(FurnizorInformatiiSuplimentare);
+            antetNode.AppendChild(ClientNume);
+            antetNode.AppendChild(ClientInformatiiSuplimentare);
 
-            factura.AppendChild(ClientCIF);
-            factura.AppendChild(ClientNrRegCom);
-            factura.AppendChild(ClientJudet);
-            factura.AppendChild(ClientAdresa);
-            factura.AppendChild(ClientBanca);
+            antetNode.AppendChild(ClientCIF);
+            antetNode.AppendChild(ClientNrRegCom);
+            antetNode.AppendChild(ClientJudet);
+            antetNode.AppendChild(ClientAdresa);
+            antetNode.AppendChild(ClientBanca);
 
-            factura.AppendChild(ClientIBAN);
-            factura.AppendChild(FacturaNumar);
-            factura.AppendChild(FacturaData);
-            factura.AppendChild(FacturaScadenta);
-            factura.AppendChild(FacturaTaxareInversa);
+            antetNode.AppendChild(ClientIBAN);
+            antetNode.AppendChild(FacturaNumar);
+            antetNode.AppendChild(FacturaData);
+            antetNode.AppendChild(FacturaScadenta);
+            antetNode.AppendChild(FacturaTaxareInversa);
 
-            factura.AppendChild(FacturaTVAIncasare);
-            factura.AppendChild(FacturaInformatiiSuplimentare);
-            factura.AppendChild(FacturaMoneda);
+            antetNode.AppendChild(FacturaTVAIncasare);
+            antetNode.AppendChild(FacturaInformatiiSuplimentare);
+            antetNode.AppendChild(FacturaMoneda);
+            #endregion
+
+            #region Linie
+            XmlNode detalii = doc.CreateElement("Detalii");
+            factura.AppendChild(detalii);
+            XmlNode continut = doc.CreateElement("Continut");
+            detalii.AppendChild(continut);
+            XmlNode linie = doc.CreateElement("Linie");
+            continut.AppendChild(linie);
+
+            XmlNode LinieNrCrt = doc.CreateElement("LinieNrCrt");
+            LinieNrCrt.InnerText = line.LinieNrCrt;
+            XmlNode Descriere = doc.CreateElement("Descriere");
+            Descriere.InnerText = line.Descriere;
+            XmlNode CodArticolFurnizor = doc.CreateElement("CodArticolFurnizor");
+            CodArticolFurnizor.InnerText = line.CodArticolFurnizor;
+            XmlNode CodArticolClient = doc.CreateElement("CodArticolClient");
+            CodArticolClient.InnerText = line.CodArticolClient;
+            XmlNode CodBare = doc.CreateElement("CodBare");
+            CodBare.InnerText = line.CodBare;
+
+            XmlNode InformatiiSuplimentare = doc.CreateElement("InformatiiSuplimentare");
+            InformatiiSuplimentare.InnerText = line.InformatiiSuplimentare;
+            XmlNode UM = doc.CreateElement("UM");
+            UM.InnerText = line.UM;
+            XmlNode Cantitate = doc.CreateElement("Cantitate");
+            Cantitate.InnerText = line.Cantitate;
+            XmlNode Pret = doc.CreateElement("Pret");
+            Pret.InnerText = line.Pret;
+            XmlNode Valoare = doc.CreateElement("Valoare");
+            Valoare.InnerText = line.Valoare;
+
+            XmlNode ProcTVA = doc.CreateElement("ProcTVA");
+            ProcTVA.InnerText = line.ProcTVA;
+            XmlNode TVA = doc.CreateElement("TVA");
+            TVA.InnerText = line.TVA;
+            XmlNode Cont = doc.CreateElement("Cont");
+            Cont.InnerText = line.Cont;
+
+            linie.AppendChild(LinieNrCrt);
+            linie.AppendChild(Descriere);
+            linie.AppendChild(CodArticolFurnizor);
+            linie.AppendChild(CodArticolClient);
+            linie.AppendChild(CodBare);
+
+            linie.AppendChild(InformatiiSuplimentare);
+            linie.AppendChild(UM);
+            linie.AppendChild(Cantitate);
+            linie.AppendChild(Pret);
+            linie.AppendChild(Valoare);
+
+            linie.AppendChild(ProcTVA);
+            linie.AppendChild(TVA);
+            linie.AppendChild(Cont);
+
+            #endregion
 
             doc.Save(xmlFileName + ".xml");  
         }
