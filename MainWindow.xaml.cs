@@ -52,6 +52,11 @@ namespace SagaTransferFromXlsToXml
             }
             openFileDialog1 = null;
 
+            buttonChooseFile.Visibility = Visibility.Collapsed;
+            imageLoading.Visibility = Visibility.Visible;
+
+            
+
             if(File.Exists(fileName) == false)
             {
                 CreateXML(fileName);
@@ -64,7 +69,6 @@ namespace SagaTransferFromXlsToXml
 
             Thread thread = new Thread(ReadAndWrite);
             thread.Start();
-            
         }
 
         private void ReadAndWrite()
@@ -109,6 +113,8 @@ namespace SagaTransferFromXlsToXml
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    buttonChooseFile.Visibility = Visibility.Visible;
+                    imageLoading.Visibility = Visibility.Collapsed;
                     MessageBox.Show("Fisierul s-a creat cu succes!");
                     System.Diagnostics.Process.Start(fileName + ".xml");
                 }));

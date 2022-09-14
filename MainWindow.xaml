@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SagaTransferFromXlsToXml"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="350">
+        Title="XLS to XML" Height="350" Width="350">
     <Grid>
         <Button x:Name="buttonChooseFile" Content="Alege Fisier" Height="50" Width="200" VerticalAlignment="Center" Click="buttonChooseFile_Click"/>
+        <Image x:Name="imageLoading" gif:ImageBehavior.AnimatedSource="/Loading_icon.gif" Visibility="Collapsed"/>
     </Grid>
 </Window>
