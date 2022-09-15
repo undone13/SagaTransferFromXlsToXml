@@ -317,6 +317,10 @@ namespace SagaTransferFromXlsToXml
                                 {
                                     line.TVA = result.Tables[0].Rows[i][j].ToString();
                                 }
+                                if (result.Tables[0].Rows[0][j].ToString() == "Cont")
+                                {
+                                    line.Cont = result.Tables[0].Rows[i][j].ToString();
+                                }
                             }
                             if(string.IsNullOrEmpty(line.Cont))
                             {
