@@ -8,8 +8,10 @@ namespace SagaTransferFromXlsToXml
 {
     internal class InvoiceClass
     {
+        
         public class Antet
         {
+            public string NrLinii;
             public string FurnizorNume;
             public string FurnizorCIF;
             public string FurnizorNrRegCom;
@@ -57,7 +59,7 @@ namespace SagaTransferFromXlsToXml
             public string Cantitate;
             public string Pret;
             public string Valoare;
-            public string CotaTVA;
+            //public string CotaTVA;
             public string ProcTVA;
             public string TVA;
             public string Cont;

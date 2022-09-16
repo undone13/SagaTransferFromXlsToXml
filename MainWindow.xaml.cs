@@ -32,6 +32,9 @@ namespace SagaTransferFromXlsToXml
         public string fileName = "documentXML";
         public string filePath = "";
 
+        int rowsCount, columnsCount;
+        int defaultAccount;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -75,52 +78,22 @@ namespace SagaTransferFromXlsToXml
 
         private void ReadAndWrite()
         {
-            List<string> headers = new List<string>();
-
             try
             {
-                int defaultAccount = filePath.ToLower().Contains("intrare") ? 371 : 707;
+                defaultAccount = filePath.ToLower().Contains("intrare") ? 371 : 707;
                 using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
                 {
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {                    
-                        //do
-                        //{
-                        //    while (reader.Read())
-                        //    {
-                        //        InvoiceClass.Antet antet = new InvoiceClass.Antet();
-                        //        antet.ClientNume = reader.GetString(0);
-                        //        antet.ClientCIF = reader.GetString(1);
-                        //        antet.FacturaNumar = reader.GetString(2);  //reader.GetString(2).Split(' ').Skip(1).FirstOrDefault(); //fact 1234 -> 1234
-                        //        antet.FurnizorNume = reader.GetString(3);
-                        //        antet.FurnizorCIF = reader.GetString(4);
-                        //        antet.FacturaData = reader.GetString(5);
-                        //        antet.FacturaMoneda = reader.GetString(9);
-
-                        //        InvoiceClass.Linie line = new InvoiceClass.Linie();
-                        //        line.LinieNrCrt = "1";
-                        //        line.Descriere = "Marfa";
-                        //        line.Cantitate = "1";
-                        //        line.Pret = reader.GetDouble(8).ToString();
-                        //        line.Valoare = line.Pret;
-                        //        double TVAproc = reader.GetDouble(7) / reader.GetDouble(6) * 100f;
-                        //        line.ProcTVA = Convert.ToInt32(TVAproc).ToString();
-                        //        line.TVA = reader.GetDouble(7).ToString();
-                        //        line.Cont = "371";
-
-                        //        CreateInvoice(fileName, antet, line);
-                        //    }
-                        //} while (reader.NextResult());
-
                         var result = reader.AsDataSet();
-                        var rowsCount = result.Tables[0].Rows.Count;
-                        var columnsCount = result.Tables[0].Columns.Count;
+                        rowsCount = result.Tables[0].Rows.Count;
+                        columnsCount = result.Tables[0].Columns.Count;
 
-                        for(int i=1; i< rowsCount; i++)
+                        for (int i = 1; i < rowsCount; i++)
                         {
-                            InvoiceClass.Antet antet = new InvoiceClass.Antet();
-                            InvoiceClass.Linie line = new InvoiceClass.Linie();
                             List<InvoiceClass.Linie> lines = new List<InvoiceClass.Linie>();
+                            InvoiceClass.Antet antet = new InvoiceClass.Antet();
+
                             for (int j = 0; j < columnsCount; j++)
                             {
                                 if (result.Tables[0].Rows[0][j].ToString() == "FurnizorNume")
@@ -256,109 +229,17 @@ namespace SagaTransferFromXlsToXml
                                     antet.FacturaGreutate = result.Tables[0].Rows[i][j].ToString();
                                 }
 
-                                //Linie
-                                if (result.Tables[0].Rows[0][j].ToString() == "LinieNrCrt")
-                                {
-                                    line.LinieNrCrt = result.Tables[0].Rows[i][j].ToString();
+                                if (result.Tables[0].Rows[0][j].ToString() == "NrLinii")
+                                { 
+                                    antet.NrLinii = result.Tables[0].Rows[i][j].ToString();
                                 }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Gestiune")
-                                {
-                                    line.Gestiune = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Activitate")
-                                {
-                                    line.Activitate = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Descriere")
-                                {
-                                    line.Descriere = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "CodArticolFurnizor")
-                                {
-                                    line.CodArticolFurnizor = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "CodArticolClient")
-                                {
-                                    line.CodArticolClient = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "CodBare")
-                                {
-                                    line.CodBare = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "InformatiiSuplimentare")
-                                {
-                                    line.InformatiiSuplimentare = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "UM")
-                                {
-                                    line.UM = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Cantitate")
-                                {
-                                    line.Cantitate = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Pret")
-                                {
-                                    line.Pret = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Valoare")
-                                {
-                                    line.Valoare = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                //if (result.Tables[0].Rows[0][j].ToString() == "CotaTVA")
+                                //while(antet.NrLinii.Length > 0)
                                 //{
-                                //    line.CotaTVA = result.Tables[0].Rows[i][j].ToString();
+                                //    i = i + 1;
                                 //}
-                                if (result.Tables[0].Rows[0][j].ToString() == "ProcTVA")
-                                {
-                                    line.ProcTVA = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "TVA")
-                                {
-                                    line.TVA = result.Tables[0].Rows[i][j].ToString();
-                                }
-                                if (result.Tables[0].Rows[0][j].ToString() == "Cont")
-                                {
-                                    line.Cont = result.Tables[0].Rows[i][j].ToString();
-                                }
+
                             }
-                            if(string.IsNullOrEmpty(line.Cont))
-                            {
-                                line.Cont = defaultAccount.ToString();
-                            }
-                            if(string.IsNullOrEmpty(line.Descriere))
-                            {
-                                line.Descriere = "marfa";
-                            }
-                            if(string.IsNullOrEmpty(line.UM))
-                            {
-                                line.UM = "buc";
-                            }
-                            //if(string.IsNullOrEmpty(antet.FacturaCotaTVA)) 
-                            //{
-                            //    var TVAvalue = Convert.ToDouble(line.TVA) / Convert.ToDouble(line.Pret) * 100.00f;
-                            //    antet.FacturaCotaTVA = Convert.ToInt32(TVAvalue).ToString();
-                            //}
-                            if(string.IsNullOrEmpty(line.Cantitate))
-                            {
-                                line.Cantitate = "1";
-                            }
-                            if(string.IsNullOrEmpty(line.Valoare))
-                            {
-                                var val = Convert.ToDouble(line.Cantitate) * Convert.ToDouble(line.Pret);
-                                line.Valoare = val.ToString();
-                            }
-                            //if(string.IsNullOrEmpty(line.CotaTVA))
-                            //{
-                            //    var TVAvalue = Convert.ToDouble(line.TVA) / Convert.ToDouble(line.Pret) * 100.00f;
-                            //    line.CotaTVA = Convert.ToInt32(TVAvalue).ToString();
-                            //}
-                            if (string.IsNullOrEmpty(line.ProcTVA))
-                            {
-                                var TVAvalue = Convert.ToDouble(line.TVA) / Convert.ToDouble(line.Pret) * 100.00f;
-                                line.ProcTVA = Convert.ToInt32(TVAvalue).ToString();
-                            }
-                            if(string.IsNullOrEmpty(antet.ClientTara))
+                            if (string.IsNullOrEmpty(antet.ClientTara))
                             {
                                 antet.ClientTara = "RO";
                             }
@@ -366,24 +247,42 @@ namespace SagaTransferFromXlsToXml
                             {
                                 antet.FurnizorTara = "RO";
                             }
-                            if(string.IsNullOrEmpty(antet.ClientCIF))
+                            if (string.IsNullOrEmpty(antet.ClientCIF))
                             {
                                 antet.ClientCIF = "-";
                             }
-                            if(string.IsNullOrEmpty(antet.FacturaMoneda))
+                            if (string.IsNullOrEmpty(antet.FacturaMoneda))
                             {
                                 antet.FacturaMoneda = "RON";
                             }
-                            if(string.IsNullOrEmpty(antet.FacturaGreutate))
+                            if (string.IsNullOrEmpty(antet.FacturaGreutate))
                             {
                                 antet.FacturaGreutate = "0.000";
                             }
-                            if(string.IsNullOrEmpty(line.LinieNrCrt))
+
+                            //Linie
+                            if (!string.IsNullOrEmpty(antet.NrLinii))
                             {
-                                line.LinieNrCrt = "1";
+                                int linesInt;
+                                string linesCount = antet.NrLinii;
+
+                                if (string.IsNullOrEmpty(linesCount))
+                                {
+                                    linesInt = 0;
+                                }
+                                else
+                                {
+                                    linesInt = Convert.ToInt32(linesCount);
+                                }
+                                lines = linesSave(linesInt, i, result);
+                                
+                                i += (linesInt - 1);
+                            }
+                            else
+                            {
+                                lines = linesSave(1, i, result);
                             }
 
-                            lines.Add(line);
                             CreateInvoice(fileName, antet, lines);
                         }
 
@@ -401,8 +300,121 @@ namespace SagaTransferFromXlsToXml
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex);
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    buttonChooseFile.Visibility = Visibility.Visible;
+                    imageLoading.Visibility = Visibility.Collapsed;
+                }));
             }
+        }
+
+        private List<InvoiceClass.Linie> linesSave(int linesCount, int startLine, DataSet result)
+        {
+            List<InvoiceClass.Linie> linesList = new List<InvoiceClass.Linie>();
+
+            int nrCrt = 1;
+
+            for (int i=startLine; i<(startLine + linesCount); i++)
+            {
+                if (i >= rowsCount)
+                {
+                    return linesList;
+                }
+                InvoiceClass.Linie line = new InvoiceClass.Linie();
+                for (int j=0; j<columnsCount; j++)
+                {
+                    if (result.Tables[0].Rows[0][j].ToString() == "Gestiune")
+                    {
+                        line.Gestiune = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Activitate")
+                    {
+                        line.Activitate = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Descriere")
+                    {
+                        line.Descriere = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "CodArticolFurnizor")
+                    {
+                        line.CodArticolFurnizor = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "CodArticolClient")
+                    {
+                        line.CodArticolClient = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "CodBare")
+                    {
+                        line.CodBare = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "InformatiiSuplimentare")
+                    {
+                        line.InformatiiSuplimentare = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "UM")
+                    {
+                        line.UM = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Cantitate")
+                    {
+                        line.Cantitate = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Pret")
+                    {
+                        line.Pret = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Valoare")
+                    {
+                        line.Valoare = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "ProcTVA")
+                    {
+                        line.ProcTVA = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "TVA")
+                    {
+                        line.TVA = result.Tables[0].Rows[i][j].ToString();
+                    }
+                    if (result.Tables[0].Rows[0][j].ToString() == "Cont")
+                    {
+                        line.Cont = result.Tables[0].Rows[i][j].ToString();
+                    }
+                }
+                if (string.IsNullOrEmpty(line.Cont))
+                {
+                    line.Cont = defaultAccount.ToString();
+                }
+                if (string.IsNullOrEmpty(line.Descriere))
+                {
+                    line.Descriere = "marfa";
+                }
+                if (string.IsNullOrEmpty(line.UM))
+                {
+                    line.UM = "buc";
+                }
+                if (string.IsNullOrEmpty(line.ProcTVA))
+                {
+                    Console.WriteLine(line.TVA + " " + line.Pret + "*");
+                    var TVAvalue = Convert.ToDouble(line.TVA) / Convert.ToDouble(line.Pret) * 100.00f;
+                    line.ProcTVA = TVAvalue.ToString();
+                }
+                if (string.IsNullOrEmpty(line.Cantitate))
+                {
+                    line.Cantitate = "1";
+                }
+                if (string.IsNullOrEmpty(line.Valoare))
+                {
+                    
+                    var val = Convert.ToDouble(line.Cantitate) * Convert.ToDouble(line.Pret);
+                    line.Valoare = val.ToString();
+                }
+                line.LinieNrCrt = nrCrt.ToString();
+                nrCrt++;
+                linesList.Add(line);
+
+            }
+            return linesList;
         }
 
         private void CreateXML(string xmlFileName) 
@@ -537,13 +549,14 @@ namespace SagaTransferFromXlsToXml
             antetNode.AppendChild(FacturaGreutate); //
             #endregion
 
+            XmlNode detalii = doc.CreateElement("Detalii");
+            factura.AppendChild(detalii);
+            XmlNode continut = doc.CreateElement("Continut");
+            detalii.AppendChild(continut);
+
             #region Linii
-            foreach(var line in lines)
+            foreach (var line in lines)
             {
-                XmlNode detalii = doc.CreateElement("Detalii");
-                factura.AppendChild(detalii);
-                XmlNode continut = doc.CreateElement("Continut");
-                detalii.AppendChild(continut);
                 XmlNode linie = doc.CreateElement("Linie");
                 continut.AppendChild(linie);
 
